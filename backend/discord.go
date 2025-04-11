@@ -22,9 +22,9 @@ type DiscordEmbed struct {
 }
 
 type DiscordWebhook struct {
-	Username    string `json:"username"`
-	Thread_name string `json:"thread_name"`
-	Avatar_url  string `json:"avatar_url"`
+	Username   string `json:"username"`
+	ThreadName string `json:"thread_name"`
+	AvatarUrl  string `json:"avatar_url"`
 
 	Embeds []DiscordEmbed `json:"embeds"`
 }

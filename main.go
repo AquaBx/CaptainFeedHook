@@ -198,10 +198,10 @@ func main() {
 						Url:       Entry.Links[0].Href,
 					}
 					Webhook := backend.DiscordWebhook{
-						Username:    Channel.Title,
-						Avatar_url:  config.AvatarUrl,
-						Thread_name: title_thread,
-						Embeds:      []backend.DiscordEmbed{embed},
+						Username:   Channel.Title,
+						AvatarUrl:  config.AvatarUrl,
+						ThreadName: title_thread,
+						Embeds:     []backend.DiscordEmbed{embed},
 					}
 
 					err := Webhook.Send(config.Webhook)
