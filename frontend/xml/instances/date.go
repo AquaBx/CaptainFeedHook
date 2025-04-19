@@ -43,5 +43,4 @@ func (t *Date) SetChardata(d xml.CharData) {
 		}
 	}
 	utils.Log("error", fmt.Sprintf("Cannot parse date %s", d))
-
 }

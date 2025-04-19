@@ -158,13 +158,15 @@ func main() {
 			b, _ := json.Marshal(&save)
 			saveF.Write(b)
 			continue
-		} else {
-			actual.NextCall = time.Now().UTC().Unix() + config.Interval
-			actual.LastCall = now
-			heap.Push(&save, actual)
-			b, _ := json.Marshal(&save)
-			saveF.Write(b)
 		}
+
+		oldLastCall := actual.LastCall
+
+		actual.NextCall = time.Now().UTC().Unix() + config.Interval
+		actual.LastCall = now
+		heap.Push(&save, actual)
+		b, _ := json.Marshal(&save)
+		saveF.Write(b)
 
 		xmlv := xml.Visitor(body)
 
@@ -174,7 +176,7 @@ func main() {
 			for _, Entry := range Channel.Entries {
 				date := SearchDate(Entry.Dates)
 
-				if actual.LastCall <= date {
+				if oldLastCall <= date {
 					utils.Log("info", fmt.Sprintf("Loading %s", Entry.Title))
 
 					description := Entry.Content
@@ -182,9 +184,9 @@ func main() {
 						description = description[:config.MaxLength]
 					}
 
-					title_thread := Entry.Title
-					if len(title_thread) > 97 {
-						title_thread = title_thread[:97] + "..."
+					titleThread := Entry.Title
+					if len(titleThread) > 97 {
+						titleThread = titleThread[:97] + "..."
 					}
 
 					embed := backend.DiscordEmbed{
@@ -200,7 +202,7 @@ func main() {
 					Webhook := backend.DiscordWebhook{
 						Username:   Channel.Title,
 						AvatarUrl:  config.AvatarUrl,
-						ThreadName: title_thread,
+						ThreadName: titleThread,
 						Embeds:     []backend.DiscordEmbed{embed},
 					}
 

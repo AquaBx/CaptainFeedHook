@@ -11,4 +11,5 @@ FROM alpine:latest
 
 COPY --from=build-stage /app/CaptainFeedHook "/"
 RUN apk add libc6-compat && mkdir /config && echo [] > /config/save.json
-CMD ["/CaptainFeedHook"]
+COPY config config
+CMD ["/CaptainFeedHook","-debug"]
