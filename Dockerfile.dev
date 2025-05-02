@@ -1,4 +1,4 @@
-FROM golang:1.23 AS build-stage
+FROM golang:1.24 AS build-stage
 
 WORKDIR /app
 
@@ -7,9 +7,13 @@ RUN go mod download
 
 RUN go build
 
-FROM alpine:latest
+FROM alpine:3.21.3
+
+RUN addgroup -S captain && adduser -S captain -G captain
+
+USER captain
 
 COPY --from=build-stage /app/CaptainFeedHook "/"
-RUN apk add libc6-compat && mkdir /config && echo [] > /config/save.json
+RUN apk --no-cache add libc6-compat && mkdir /config && echo [] > /config/save.json
 COPY config config
 CMD ["/CaptainFeedHook","-debug"]
