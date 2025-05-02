@@ -27,8 +27,12 @@ func (f logger) getColor(c string) string {
 	return f.colors[c]
 }
 
+func hasToLog(t string) bool {
+	return Flags.Debug && t == "debug" || t != "debug"
+}
+
 func Log(t string, v string) {
-	if Flags.Debug && t == "debug" || t != "debug" {
+	if hasToLog(t) {
 		fmt.Printf("%s Logger %s : %s\n", sLogger.getColor(t), t, v)
 	}
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"CaptainFeedHook/backend"
 	"CaptainFeedHook/frontend/xml"
-	"CaptainFeedHook/frontend/xml/instances"
 	"CaptainFeedHook/utils"
 	"container/heap"
 	"encoding/json"
@@ -22,34 +21,7 @@ type Config struct {
 	MaxLength int
 }
 
-// An IntHeap is a min-heap of ints.
-type Priority []PriorityItem
-
-type PriorityItem struct {
-	Id       string
-	NextCall int64
-	LastCall int64
-}
-
-func (h Priority) Len() int           { return len(h) }
-func (h Priority) Less(i, j int) bool { return h[i].NextCall < h[j].NextCall }
-func (h Priority) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-
-func (h *Priority) Push(x any) {
-	// Push and Pop use pointer receivers because they modify the slice's length,
-	// not just its contents.
-	*h = append(*h, x.(PriorityItem))
-}
-
-func (h *Priority) Pop() any {
-	old := *h
-	n := len(old)
-	x := old[n-1]
-	*h = old[0 : n-1]
-	return x
-}
-
-func SearchImage(medias []instances.Media) string {
+func SearchImage(medias []xml.Media) string {
 	uri := ""
 	priority := 0
 
@@ -74,7 +46,7 @@ func SearchImage(medias []instances.Media) string {
 	return uri
 }
 
-func SearchDate(dates []instances.Date) int64 {
+func SearchDate(dates []xml.Date) int64 {
 	dateV := int64(0)
 	priority := 0
 
@@ -103,7 +75,7 @@ func main() {
 	saveF := utils.FileM{Directory: "config/save.json"}
 
 	configs := Configs{}
-	save := Priority{}
+	save := utils.Priority{}
 	json.Unmarshal(configF.Read(), &configs)
 	json.Unmarshal(saveF.Read(), &save)
 
@@ -122,7 +94,7 @@ func main() {
 		}
 		if !inside {
 			utils.Log("info", fmt.Sprintf("Loading %s", id))
-			heap.Push(&save, PriorityItem{Id: id, NextCall: nowinit, LastCall: nowinit})
+			heap.Push(&save, utils.PriorityItem{Id: id, NextCall: nowinit, LastCall: nowinit})
 		}
 	}
 
@@ -130,7 +102,7 @@ func main() {
 	saveF.Write(b)
 
 	for {
-		actual := heap.Pop(&save).(PriorityItem)
+		actual := heap.Pop(&save).(utils.PriorityItem)
 		config := configs[actual.Id]
 		now := time.Now().UTC().Unix()
 

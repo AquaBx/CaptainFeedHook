@@ -1,4 +1,4 @@
-package instances
+package xml
 
 import (
 	"CaptainFeedHook/utils"

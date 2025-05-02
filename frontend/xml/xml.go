@@ -1,7 +1,6 @@
 package xml
 
 import (
-	"CaptainFeedHook/frontend/xml/instances"
 	"CaptainFeedHook/utils"
 	"encoding/xml"
 	"fmt"
@@ -10,68 +9,68 @@ import (
 	"strings"
 )
 
-func elementOpened(pile *utils.Stack[instances.NodeI], tag xml.StartElement) {
-	var newEl instances.NodeI
+func elementOpened(pile *utils.Stack[NodeI], tag xml.StartElement) {
+	var newEl NodeI
 	if tag.Name.Local == "rss" {
 		return
 	} else if tag.Name.Local == "channel" || tag.Name.Local == "feed" {
-		newEl = instances.CreateChannel()
+		newEl = CreateChannel()
 	} else if tag.Name.Local == "entry" || tag.Name.Local == "item" {
-		newEl = instances.CreateEntry()
+		newEl = CreateEntry()
 	} else if tag.Name.Local == "subtitle" {
-		newEl = instances.CreateSubtitle()
+		newEl = CreateSubtitle()
 	} else if tag.Name.Local == "link" {
-		newEl = instances.CreateLink()
+		newEl = CreateLink()
 	} else if tag.Name.Local == "category" {
-		newEl = instances.CreateCategory()
+		newEl = CreateCategory()
 	} else if tag.Name.Local == "title" {
-		newEl = instances.CreateTitle()
+		newEl = CreateTitle()
 	} else if tag.Name.Local == "name" {
-		newEl = instances.CreateName()
+		newEl = CreateName()
 	} else if (tag.Name.Space == "http://www.w3.org/2005/Atom" && tag.Name.Local == "content") || (tag.Name.Space == "" && tag.Name.Local == "description") || (tag.Name.Space == "http://www.w3.org/2005/Atom" && tag.Name.Local == "description") || (tag.Name.Local == "description" && tag.Name.Space == "http://search.yahoo.com/mrss/") {
-		newEl = instances.CreateContent()
+		newEl = CreateContent()
 	} else if tag.Name.Local == "encoded" && tag.Name.Space == "http://purl.org/rss/1.0/modules/content/" {
-		a := instances.CreateContent()
+		a := CreateContent()
 		a.Type = "html"
 		newEl = a
 	} else if tag.Name.Local == "id" || tag.Name.Local == "guid" {
-		newEl = instances.CreateId()
+		newEl = CreateId()
 	} else if tag.Name.Local == "published" || tag.Name.Local == "pubDate" {
-		newEl = instances.CreatePublished()
+		newEl = CreatePublished()
 	} else if tag.Name.Local == "updated" || tag.Name.Local == "lastBuildDate" {
-		newEl = instances.CreateUpdated()
+		newEl = CreateUpdated()
 	} else if tag.Name.Local == "author" || tag.Name.Local == "creator" {
-		newEl = instances.CreateAuthor()
+		newEl = CreateAuthor()
 	} else if tag.Name.Local == "thumbnail" {
-		newEl = instances.CreateThumbnail()
+		newEl = CreateThumbnail()
 	} else if tag.Name.Local == "icon" {
-		newEl = instances.CreateIcon()
+		newEl = CreateIcon()
 	} else if tag.Name.Local == "copyright" {
-		newEl = instances.CreateCopyright()
+		newEl = CreateCopyright()
 	} else if tag.Name.Local == "logo" {
-		newEl = instances.CreateLogo()
+		newEl = CreateLogo()
 	} else if tag.Name.Space == "http://search.yahoo.com/mrss/" && tag.Name.Local == "group" {
 		return
 	} else if tag.Name.Space == "" && tag.Name.Local == "generator" {
-		newEl = instances.CreateGenerator()
+		newEl = CreateGenerator()
 	} else if tag.Name.Space == "http://purl.org/rss/1.0/modules/syndication/" && tag.Name.Local == "updatePeriod" {
-		newEl = instances.CreateUpdatePeriod()
+		newEl = CreateUpdatePeriod()
 	} else if tag.Name.Space == "http://purl.org/rss/1.0/modules/syndication/" && tag.Name.Local == "updateFrequency" {
-		newEl = instances.CreateUpdateFrequency()
+		newEl = CreateUpdateFrequency()
 	} else if tag.Name.Space == "http://search.yahoo.com/mrss/" && tag.Name.Local == "content" {
-		newEl = instances.CreateMedia()
+		newEl = CreateMedia()
 	} else if tag.Name.Local == "image" || tag.Name.Local == "enclosure" {
-		newEl = instances.CreateImage()
+		newEl = CreateImage()
 	} else if tag.Name.Local == "uri" || tag.Name.Local == "url" {
-		newEl = instances.CreateUri()
+		newEl = CreateUri()
 	} else if tag.Name.Local == "language" {
-		newEl = instances.CreateLanguage()
+		newEl = CreateLanguage()
 	} else if tag.Name.Local == "width" {
-		newEl = instances.CreateWidth()
+		newEl = CreateWidth()
 	} else if tag.Name.Local == "height" {
-		newEl = instances.CreateHeight()
+		newEl = CreateHeight()
 	} else {
-		newEl = instances.CreateNode(tag.Name.Local + " " + tag.Name.Space)
+		newEl = CreateNode(tag.Name.Local + " " + tag.Name.Space)
 	}
 
 	for _, attr := range tag.Attr {
@@ -81,13 +80,13 @@ func elementOpened(pile *utils.Stack[instances.NodeI], tag xml.StartElement) {
 	pile.Push(newEl)
 }
 
-func elementChardata(pile *utils.Stack[instances.NodeI], chardata xml.CharData) {
+func elementChardata(pile *utils.Stack[NodeI], chardata xml.CharData) {
 	v := pile.Pop()
 	v.SetChardata(chardata)
 	pile.Push(v)
 }
 
-func elementClosed(pile *utils.Stack[instances.NodeI]) {
+func elementClosed(pile *utils.Stack[NodeI]) {
 	value := pile.Pop()
 	parent := pile.Pop()
 	parent.Append(value)
@@ -113,11 +112,11 @@ func FetchRSS(url string) ([]byte, error) {
 	return body, nil
 }
 
-func Visitor(body []byte) instances.RSS {
+func Visitor(body []byte) RSS {
 	decoder := xml.NewDecoder(strings.NewReader(string(body[:])))
 
-	pile := utils.Stack[instances.NodeI]{}
-	pile.Push(instances.CreateRSS())
+	pile := utils.Stack[NodeI]{}
+	pile.Push(CreateRSS())
 
 	shouldBreak := false
 
@@ -162,5 +161,5 @@ func Visitor(body []byte) instances.RSS {
 		}
 	}
 
-	return *(pile.Pop().(*instances.RSS))
+	return *(pile.Pop().(*RSS))
 }
