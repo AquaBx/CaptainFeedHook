@@ -1,16 +1,15 @@
-FROM golang:1.24 AS build-stage
+FROM golang:latest AS build-stage
 
 WORKDIR /app
 
 COPY . .
 RUN go mod download
 
-RUN go build
+RUN go build -ldflags "-linkmode external -extldflags -static"
+RUN echo [] > save.json
 
-FROM alpine:3.21.3
-
-RUN addgroup -S captain && adduser -S captain -G captain
+FROM scratch
+COPY --from=build-stage /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build-stage /app/CaptainFeedHook "/"
-RUN apk --no-cache add libc6-compat && mkdir /config && echo [] > /config/save.json
-USER captain
+COPY --from=build-stage /app/save.json "/config/"
 CMD ["/CaptainFeedHook"]
