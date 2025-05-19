@@ -1,38 +1,35 @@
 package utils
 
 import (
-	"fmt"
+    "github.com/rs/zerolog"
+    "os"
 )
 
-type logger struct {
-	colors map[string]string
-	debug  bool
-}
-
-var sLogger logger
+var log zerolog.Logger
 
 func InitLogger() {
-	sLogger = logger{}
+    level := zerolog.InfoLevel
+    if Flags.Debug {
+        level = zerolog.DebugLevel
+    }
 
-	sLogger.colors = map[string]string{
-		"debug": "\033[93m",
-		"error": "\033[0;31m",
-		"warn":  "\033[93m",
-		"info":  "\033[0m",
-		"":      "\033[0m",
-	}
+    log = zerolog.New(os.Stdout).
+        Level(level).
+        With().
+        Timestamp().
+        Logger()
 }
 
-func (f logger) getColor(c string) string {
-	return f.colors[c]
+func Log(level string, msg string) {
+    switch level {
+    case "debug":
+        log.Debug().Msg(msg)
+    case "info":
+        log.Info().Msg(msg)
+    case "warn":
+        log.Warn().Msg(msg)
+    case "error":
+        log.Error().Msg(msg)
+    }
 }
 
-func hasToLog(t string) bool {
-	return Flags.Debug && t == "debug" || t != "debug"
-}
-
-func Log(t string, v string) {
-	if hasToLog(t) {
-		fmt.Printf("%s Logger %s : %s\n", sLogger.getColor(t), t, v)
-	}
-}

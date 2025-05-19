@@ -13,6 +13,8 @@ func elementOpened(pile *utils.Stack[NodeI], tag xml.StartElement) {
 	var newEl NodeI
 	if tag.Name.Local == "rss" {
 		return
+	} else if tag.Name.Space == "http://search.yahoo.com/mrss/" && tag.Name.Local == "group" {
+		return
 	} else if tag.Name.Local == "channel" || tag.Name.Local == "feed" {
 		newEl = CreateChannel()
 	} else if tag.Name.Local == "entry" || tag.Name.Local == "item" {
@@ -49,8 +51,6 @@ func elementOpened(pile *utils.Stack[NodeI], tag xml.StartElement) {
 		newEl = CreateCopyright()
 	} else if tag.Name.Local == "logo" {
 		newEl = CreateLogo()
-	} else if tag.Name.Space == "http://search.yahoo.com/mrss/" && tag.Name.Local == "group" {
-		return
 	} else if tag.Name.Space == "" && tag.Name.Local == "generator" {
 		newEl = CreateGenerator()
 	} else if tag.Name.Space == "http://purl.org/rss/1.0/modules/syndication/" && tag.Name.Local == "updatePeriod" {
@@ -96,6 +96,11 @@ func elementClosed(pile *utils.Stack[NodeI]) {
 func FetchRSS(url string) ([]byte, error) {
 
 	resp, err := http.Get(url)
+
+	if err != nil {
+		return nil, fmt.Errorf("%s %s", "Cannot open URL", url)
+	}
+
 	if !(200 <= resp.StatusCode && resp.StatusCode <= 299) {
 		return nil, fmt.Errorf("%s", resp.Status)
 	}

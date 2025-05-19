@@ -10,9 +10,7 @@ RUN go build
 FROM alpine:3.21.3
 
 RUN addgroup -S captain && adduser -S captain -G captain
-
-USER captain
-
 COPY --from=build-stage /app/CaptainFeedHook "/"
 RUN apk --no-cache add libc6-compat && mkdir /config && echo [] > /config/save.json
+USER captain
 CMD ["/CaptainFeedHook"]
